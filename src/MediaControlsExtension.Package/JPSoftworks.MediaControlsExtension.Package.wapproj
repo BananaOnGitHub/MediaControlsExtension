@@ -73,6 +73,8 @@
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" PrivateAssets="all" Condition="'$(ManagePackageVersionsCentrally)' == 'true'" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="$(CmdPalWindowsSdkBuildToolsVersion)" PrivateAssets="all" Condition="'$(ManagePackageVersionsCentrally)' != 'true' and '$(CmdPalWindowsSdkBuildToolsVersion)' != ''" />
   </ItemGroup>
+  <!-- Sdk.NuGet.targets imported by DesktopBridge imports Microsoft.PackageDependencyResolution.targets, which appends _HandlePackageFileConflicts to PrepareResourcesDependsOn, but does not import Microsoft.NET.ConflictResolution.targets where the target is defined. Defining a default stub before importing DesktopBridge allows a future real target imported by DesktopBridge to override the stub. -->
+  <Target Name="_HandlePackageFileConflicts" />
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
 
   <Target Name="RestoreCmdPalWapPublishAssets" BeforeTargets="_BuildDependentProjects" DependsOnTargets="_WapProjGetProjectClosure" Condition="'$(_IsGeneratingAppxPackage)' == 'true'">
@@ -100,5 +102,4 @@
     </ItemGroup>
   </Target>
 
-  <Target Name="_HandlePackageFileConflicts" />
 </Project>
