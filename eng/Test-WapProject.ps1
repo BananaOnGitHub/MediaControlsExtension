@@ -56,6 +56,20 @@ function Add-Result {
     })
 }
 
+function Get-RelativePath {
+    param(
+        [Parameter(Mandatory)]
+        [string] $RelativeTo,
+
+        [Parameter(Mandatory)]
+        [string] $Path
+    )
+
+    $fromUri = [Uri]([IO.Path]::GetFullPath($RelativeTo).TrimEnd('\') + '\')
+    $toUri = [Uri][IO.Path]::GetFullPath($Path)
+    return [Uri]::UnescapeDataString($fromUri.MakeRelativeUri($toUri).ToString()).Replace('/', '\')
+}
+
 function Get-XmlProperty {
     param(
         [Parameter(Mandatory)]
@@ -146,9 +160,7 @@ if ([string]::IsNullOrWhiteSpace($WapProjectPath)) {
     $wapProjects = @(
         Get-ChildItem -LiteralPath $RepositoryRoot -Recurse -File -Filter '*.wapproj' |
             Where-Object {
-                [IO.Path]::GetRelativePath(
-                    $RepositoryRoot,
-                    $_.FullName) -notmatch '(^|[\\/])(bin|obj)[\\/]'
+                (Get-RelativePath -RelativeTo $RepositoryRoot -Path $_.FullName) -notmatch '(^|[\\/])(bin|obj)[\\/]'
             }
     )
     if ($wapProjects.Count -ne 1) {
@@ -801,9 +813,7 @@ if ($canContinue) {
                 $matchingGuidSource = @(
                     Get-ChildItem -LiteralPath $appProjectDirectory -Recurse -File -Filter '*.cs' |
                         Where-Object {
-                            [IO.Path]::GetRelativePath(
-                                $appProjectDirectory,
-                                $_.FullName) -notmatch '(^|[\\/])(bin|obj)[\\/]'
+                            (Get-RelativePath -RelativeTo $appProjectDirectory -Path $_.FullName) -notmatch '(^|[\\/])(bin|obj)[\\/]'
                         } |
                         ForEach-Object {
                             Select-String `
@@ -994,9 +1004,7 @@ if ($canContinue) {
     )
     $solutionContainsWap = $false
     $solutionDeploysWap = $false
-    $wapRelativePath = [IO.Path]::GetRelativePath(
-        $RepositoryRoot,
-        $WapProjectPath).Replace('\', '/')
+    $wapRelativePath = (Get-RelativePath -RelativeTo $RepositoryRoot -Path $WapProjectPath).Replace('\', '/')
     foreach ($solutionFile in $solutionFiles) {
         $solutionText = Get-Content -LiteralPath $solutionFile.FullName -Raw
         if ($solutionText.Replace('\', '/').Contains($wapRelativePath)) {

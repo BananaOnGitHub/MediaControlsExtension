@@ -151,7 +151,7 @@ function Find-VisualStudioInstallation {
     }
 
     $installationPaths = @(
-        & $vswherePath -latest -products * -prerelease -requires Microsoft.Component.MSBuild -property installationPath
+        & $vswherePath -products * -prerelease -requires Microsoft.Component.MSBuild -property installationPath
     )
     if ($LASTEXITCODE -ne 0) {
         throw "vswhere.exe failed with exit code $LASTEXITCODE."

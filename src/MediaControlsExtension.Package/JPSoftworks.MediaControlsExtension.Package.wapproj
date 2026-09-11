@@ -99,4 +99,6 @@
       <FrameworkSdkPackage Remove="@(FrameworkSdkPackage)" Condition="'%(FrameworkSdkPackage.Name)' == 'Microsoft.VCLibs.140.00' or '%(FrameworkSdkPackage.Name)' == 'Microsoft.VCLibs.140.00.Debug' or '%(FrameworkSdkPackage.Name)' == 'Microsoft.VCLibs.140.00.UWPDesktop' or '%(FrameworkSdkPackage.Name)' == 'Microsoft.VCLibs.140.00.Debug.UWPDesktop'" />
     </ItemGroup>
   </Target>
+
+  <Target Name="_HandlePackageFileConflicts" />
 </Project>
