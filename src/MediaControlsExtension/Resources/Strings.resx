@@ -471,6 +471,12 @@
   <data name="Settings_PauseOthersOnPlay_Subtitle" xml:space="preserve">
     <value>When playing a session, automatically pause all other sessions.</value>
   </data>
+  <data name="Settings_EnableITunes_Title" xml:space="preserve">
+    <value>iTunes integration</value>
+  </data>
+  <data name="Settings_EnableITunes_Subtitle" xml:space="preserve">
+    <value>Control media playback in iTunes via direct desktop integration.</value>
+  </data>
   <data name="Settings_ShowCurrentMediaAtTopLevel_Title" xml:space="preserve">
     <value>Show the current media session on the home page</value>
   </data>

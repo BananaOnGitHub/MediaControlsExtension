@@ -257,7 +257,8 @@ public sealed partial class MediaControlsExtensionCommandsProvider : CommandProv
     private void UpdateMediaServiceOptions()
     {
         this._mediaService.UpdateOptions(new(
-            this._settingsManager.PauseOthersOnPlay));
+            this._settingsManager.PauseOthersOnPlay,
+            this._settingsManager.EnableITunes));
     }
 
     private void UpdateDockBands()

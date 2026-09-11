@@ -87,6 +87,13 @@ internal sealed class SettingsManager : JsonSettingsManager, ISettingsManager
         true);
 
     [SuppressMessage("Maintainability", "CA1507:Use nameof to express symbol names", Justification = "Settings key is independent to ensure its compatible")]
+    private readonly ToggleSetting _enableITunes = new(
+        Namespaced("EnableITunes"),
+        Strings.Settings_EnableITunes_Title!,
+        Strings.Settings_EnableITunes_Subtitle!,
+        true);
+
+    [SuppressMessage("Maintainability", "CA1507:Use nameof to express symbol names", Justification = "Settings key is independent to ensure its compatible")]
     private readonly ToggleSetting _showCurrentMediaAtTopLevel = new(
         Namespaced("ShowCurrentMediaAtTopLevel"),
         Strings.Settings_ShowCurrentMediaAtTopLevel_Title!,
@@ -161,6 +168,8 @@ internal sealed class SettingsManager : JsonSettingsManager, ISettingsManager
     public bool ShowToastMessages => this._showToastMessages.Value;
 
     public bool PauseOthersOnPlay => this._pauseOthersOnPlay.Value;
+ 
+    public bool EnableITunes => this._enableITunes.Value;
 
     public bool ShowCurrentMediaAtTopLevel => _showCurrentMediaAtTopLevel.Value;
 
@@ -228,6 +237,7 @@ internal sealed class SettingsManager : JsonSettingsManager, ISettingsManager
         this.Settings.Add(this._showThumbnailsOption);
         this.Settings.Add(this._keepOpen);
         this.Settings.Add(this._pauseOthersOnPlay);
+        this.Settings.Add(this._enableITunes);
         this.Settings.Add(this._showToastMessages);
         this.Settings.Add(new SettingsGroupHeader(
             Namespaced("Layout.Commands"),

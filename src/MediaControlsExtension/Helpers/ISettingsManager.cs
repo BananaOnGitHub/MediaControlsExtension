@@ -17,6 +17,7 @@ internal interface ISettingsManager
     bool KeepOpenTogglePlayMedia { get; }
     bool ShowToastMessages { get; }
     bool PauseOthersOnPlay { get; }
+    bool EnableITunes { get; }
     bool ShowCurrentMediaAtTopLevel { get; }
     bool EnableVolumeControls { get; }
     bool ShowSkipCommands { get; }

@@ -239,4 +239,25 @@ internal static partial class MediaLog
     public static partial void BackendCleanupFailed(
         ILogger logger,
         Exception exception);
+
+    [LoggerMessage(EventId = 37, Level = LogLevel.Warning, Message = "Failed to connect to iTunes COM interface.")]
+    public static partial void ITunesConnectFailed(
+        ILogger logger,
+        Exception exception);
+
+    [LoggerMessage(EventId = 38, Level = LogLevel.Debug, Message = "Could not hook iTunes connection point events.")]
+    public static partial void ITunesHookEventsFailed(
+        ILogger logger,
+        Exception exception);
+
+    [LoggerMessage(EventId = 39, Level = LogLevel.Debug, Message = "Error updating iTunes playback state.")]
+    public static partial void ITunesUpdatePlaybackStateFailed(
+        ILogger logger,
+        Exception exception);
+
+    [LoggerMessage(EventId = 40, Level = LogLevel.Warning, Message = "Exception while pumping signals from child backend {BackendName}.")]
+    public static partial void ChildBackendSignalPumpFailed(
+        ILogger logger,
+        string backendName,
+        Exception exception);
 }

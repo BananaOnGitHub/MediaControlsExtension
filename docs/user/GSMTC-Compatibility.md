@@ -33,7 +33,7 @@ This is a practical compatibility guide, not a test certification. Player versio
 | [MediaMonkey](https://www.mediamonkey.com/) | ✅ | ✅ | ✅ | ✅ | — | — | — | App identity is generally available even when richer media properties are not. |
 | MusicBee | 🧩 | ✅ | ✅ | ✅ | ✅ | ⚠️ | ✅ | Requires the third-party [mb_MediaControl plugin](https://github.com/ameer1234567890/mb_MediaControl). |
 | AIMP | 🧩 | ✅ | ✅ | ✅ | ✅ | ➖ | ➖ | Requires the third-party [Windows 10 Media Control plugin](https://www.aimp.ru/?do=catalog&rec_id=1097). |
-| iTunes | 🧩 | ✅ | ✅ | ✅ | ✅ | ➖ | ➖ | Requires the third-party [iTunes-SMTC integration](https://github.com/thewizrd/iTunes-SMTC). |
+| iTunes | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Native desktop integration built into the extension. Third-party [iTunes-SMTC](https://github.com/thewizrd/iTunes-SMTC) is also supported and deduplicated if used. |
 
 ## Video and general media players
 
@@ -72,7 +72,7 @@ These community integrations can make additional desktop players publish an SMTC
 | --- | --- |
 | MusicBee | [mb_MediaControl](https://github.com/ameer1234567890/mb_MediaControl) |
 | AIMP | [Windows 10 Media Control plugin](https://www.aimp.ru/?do=catalog&rec_id=1097) |
-| iTunes | [iTunes-SMTC](https://github.com/thewizrd/iTunes-SMTC) |
+| iTunes | [iTunes-SMTC](https://github.com/thewizrd/iTunes-SMTC) (optional; native integration is built-in) |
 | VLC desktop 3.x | [vlc-win10smtc](https://github.com/spmn/vlc-win10smtc) |
 | Winamp | [gen_smtc](https://github.com/NanMetal/gen_smtc) |
 | mpv | [MPV-SMTC](https://github.com/x0wllaar/MPV-SMTC) or [MPVMediaControl](https://github.com/datasone/MPVMediaControl) |

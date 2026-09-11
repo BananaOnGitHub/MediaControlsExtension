@@ -474,10 +474,13 @@ internal sealed class GsmtcBackend : IMediaBackend
             }
             catch (TimeoutException)
             {
+                var incompleteCount = this._logger.IsEnabled(LogLevel.Warning)
+                    ? cleanupTasks.Count(static task => !task.IsCompleted)
+                    : 0;
                 MediaLog.BackendCleanupTimedOut(
                     this._logger,
                     DisposalCleanupTimeout,
-                    cleanupTasks.Count(static task => !task.IsCompleted),
+                    incompleteCount,
                     cleanupTasks.Count);
                 _ = ObserveCleanupCompletionAsync(cleanupTask);
             }

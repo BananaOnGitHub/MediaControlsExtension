@@ -1044,6 +1044,24 @@ namespace JPSoftworks.MediaControlsExtension.Resources {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Control media playback in iTunes via direct desktop integration..
+        /// </summary>
+        internal static string Settings_EnableITunes_Subtitle {
+            get {
+                return ResourceManager.GetString("Settings_EnableITunes_Subtitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to iTunes integration.
+        /// </summary>
+        internal static string Settings_EnableITunes_Title {
+            get {
+                return ResourceManager.GetString("Settings_EnableITunes_Title", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Add a “Now Playing” item for quick access to the current media session..
         /// </summary>
         internal static string Settings_ShowCurrentMediaAtTopLevel_Subtitle {

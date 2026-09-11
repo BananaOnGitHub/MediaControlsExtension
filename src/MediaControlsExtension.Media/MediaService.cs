@@ -9,7 +9,9 @@ using System.Diagnostics;
 using System.Threading.Channels;
 using JPSoftworks.MediaControlsExtension.Media.Diagnostics;
 using JPSoftworks.MediaControlsExtension.Media.Infrastructure;
+using JPSoftworks.MediaControlsExtension.Media.Infrastructure.Composite;
 using JPSoftworks.MediaControlsExtension.Media.Infrastructure.Gsmtc;
+using JPSoftworks.MediaControlsExtension.Media.Infrastructure.ITunes;
 using JPSoftworks.MediaControlsExtension.Media.State;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -62,7 +64,12 @@ public sealed class MediaService : IMediaService
     {
         loggerFactory ??= NullLoggerFactory.Instance;
         this._logger = loggerFactory.CreateLogger<MediaService>();
-        this._backend = new GsmtcBackend(loggerFactory.CreateLogger<GsmtcBackend>());
+        var gsmtcBackend = new GsmtcBackend(loggerFactory.CreateLogger<GsmtcBackend>());
+        var itunesBackend = new ITunesBackend(loggerFactory.CreateLogger<ITunesBackend>());
+        this._backend = new CompositeMediaBackend(
+            gsmtcBackend,
+            itunesBackend,
+            loggerFactory.CreateLogger<CompositeMediaBackend>());
         this._commandQueue = CreateCommandQueue();
         this._refreshRequests = CreateRefreshQueue();
         this._timeProvider = TimeProvider.System;
@@ -197,7 +204,7 @@ public sealed class MediaService : IMediaService
                 throw new OperationCanceledException(
                     "Media service startup was canceled because the service is being disposed.",
                     ex,
-                    this._disposeCts.Token);
+                    cancellationToken);
             }
 
             throw;
@@ -326,6 +333,10 @@ public sealed class MediaService : IMediaService
     public void UpdateOptions(MediaServiceOptions options)
     {
         this._stateStore.UpdateOptions(options);
+        if (this._backend is CompositeMediaBackend compositeBackend)
+        {
+            compositeBackend.SetITunesEnabled(options.EnableITunes);
+        }
     }
 
     public void Dispose()
@@ -436,12 +447,13 @@ public sealed class MediaService : IMediaService
 
         if (!succeeded)
         {
+            var reason = result.DiagnosticMessage ?? (this._logger.IsEnabled(LogLevel.Warning) ? outcomeStatus.ToString() : string.Empty);
             MediaLog.CommandFailed(
                 this._logger,
                 work.OperationId.Value,
                 command.ResolvedOperation,
                 command.SessionId.Value,
-                result.DiagnosticMessage ?? outcomeStatus.ToString());
+                reason);
         }
         else
         {

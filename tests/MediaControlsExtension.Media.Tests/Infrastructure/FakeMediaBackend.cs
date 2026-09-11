@@ -29,6 +29,7 @@ internal sealed class FakeMediaBackend(MediaBackendSnapshot initialSnapshot) : I
         });
     private readonly Lock _stateLock = new();
     private readonly List<ImmutableArray<MediaBackendObservationRequest>> _observationInvalidations = [];
+    private readonly List<MediaBackendCommand> _executedCommands = [];
     private MediaBackendSnapshot _snapshot = initialSnapshot;
     private int _blockCommands;
     private int _blockSnapshotReads;
@@ -50,6 +51,17 @@ internal sealed class FakeMediaBackend(MediaBackendSnapshot initialSnapshot) : I
     public Task SnapshotReadStarted => this._snapshotReadStarted.Task;
 
     public Task StartStarted => this._startStarted.Task;
+
+    public ImmutableArray<MediaBackendCommand> ExecutedCommands
+    {
+        get
+        {
+            lock (this._stateLock)
+            {
+                return [.. this._executedCommands];
+            }
+        }
+    }
 
     public ImmutableArray<ImmutableArray<MediaBackendObservationRequest>> ObservationInvalidations
     {
@@ -174,6 +186,11 @@ internal sealed class FakeMediaBackend(MediaBackendSnapshot initialSnapshot) : I
         MediaBackendCommand command,
         CancellationToken cancellationToken)
     {
+        lock (this._stateLock)
+        {
+            this._executedCommands.Add(command);
+        }
+
         this._commandStarted.TrySetResult();
         if (Volatile.Read(ref this._blockCommands) != 0)
         {
@@ -258,6 +275,25 @@ internal sealed class FakeMediaBackend(MediaBackendSnapshot initialSnapshot) : I
                 .ToImmutableArray(),
             new(currentSessionId),
             MediaControlAvailability.Available);
+    }
+
+    public static MediaBackendSnapshot CreateSnapshotWithApplication(
+        long revision,
+        long sessionId,
+        string title,
+        string appId,
+        string appName)
+    {
+        var backendSessionId = new MediaBackendSessionId(sessionId);
+        var application = new MediaApplicationSnapshot(appId, appName, null, null);
+        var session = new MediaBackendSessionSnapshot(
+            backendSessionId,
+            1,
+            MediaPropertiesSnapshot.Empty(application) with { Title = title },
+            MediaTimelinePropertiesSnapshot.Empty,
+            MediaPlaybackState.Playing,
+            MediaCapabilities.Play | MediaCapabilities.Pause);
+        return new(revision, [session], backendSessionId, MediaControlAvailability.Available);
     }
 
     private static MediaBackendSessionSnapshot CreateSession(
