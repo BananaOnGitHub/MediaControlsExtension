@@ -42,8 +42,13 @@ if (-not (Test-Path "$devAppX\AppxManifest.xml")) {
 Get-Process -Name "JPSoftworks.MediaControlsExtension" -ErrorAction SilentlyContinue | Stop-Process -Force
 
 if ($existingPkg) {
-    Write-Host "Unregistering existing package '$($existingPkg.PackageFullName)' (preserving app data)..." -ForegroundColor Yellow
-    Remove-AppxPackage -Package $existingPkg.PackageFullName -PreserveApplicationData
+    if ($existingPkg.IsDevelopmentMode) {
+        Write-Host "Unregistering existing development package '$($existingPkg.PackageFullName)' (preserving app data)..." -ForegroundColor Yellow
+        Remove-AppxPackage -Package $existingPkg.PackageFullName -PreserveApplicationData
+    } else {
+        Write-Host "Removing existing Store package '$($existingPkg.PackageFullName)'..." -ForegroundColor Yellow
+        Remove-AppxPackage -Package $existingPkg.PackageFullName
+    }
 }
 
 Write-Host "Registering unpacked development package..." -ForegroundColor Green
