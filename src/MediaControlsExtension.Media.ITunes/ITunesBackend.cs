@@ -87,12 +87,12 @@ public sealed class ITunesBackend : IMediaBackend
     public Task StartAsync(CancellationToken cancellationToken)
     {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref this._disposeState) != 0, this);
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (Interlocked.CompareExchange(ref this._startState, 1, 0) != 0)
         {
             throw new InvalidOperationException("The iTunes backend has already been started.");
         }
-
-        cancellationToken.ThrowIfCancellationRequested();
 
         this._dispatcherController = DispatcherQueueController.CreateOnDedicatedThread();
         this._dispatcherQueue = this._dispatcherController.DispatcherQueue;
@@ -413,14 +413,22 @@ public sealed class ITunesBackend : IMediaBackend
 
     private static bool DefaultIsProcessRunning(string name)
     {
+        Process[] processes = [];
         try
         {
-            using var processes = Process.GetProcessesByName(name).FirstOrDefault();
-            return processes != null;
+            processes = Process.GetProcessesByName(name);
+            return processes.Length != 0;
         }
         catch
         {
             return false;
+        }
+        finally
+        {
+            foreach (var process in processes)
+            {
+                process.Dispose();
+            }
         }
     }
 
@@ -908,21 +916,32 @@ public sealed class ITunesBackend : IMediaBackend
 
     private void ResolveExecutablePath()
     {
+        Process[] processes = [];
         try
         {
-            var processes = Process.GetProcessesByName("iTunes");
-            if (processes.Length > 0 && processes[0].MainModule?.FileName is { } path && File.Exists(path))
+            processes = Process.GetProcessesByName("iTunes");
+            foreach (var process in processes)
             {
-                lock (this._stateLock)
+                if (process.MainModule?.FileName is { } path && File.Exists(path))
                 {
-                    this._executablePath = path;
-                }
+                    lock (this._stateLock)
+                    {
+                        this._executablePath = path;
+                    }
 
-                return;
+                    return;
+                }
             }
         }
         catch
         {
+        }
+        finally
+        {
+            foreach (var process in processes)
+            {
+                process.Dispose();
+            }
         }
 
         var defaultPath = Path.Combine(

@@ -27,17 +27,6 @@ internal static unsafe partial class ITunesNative
         return (*(nint**)instance)[slot];
     }
 
-    public static uint AddRef(nint instance)
-    {
-        if (instance == 0)
-        {
-            return 0;
-        }
-
-        var addRef = (delegate* unmanaged[Stdcall]<nint, uint>)GetMethod(instance, 1);
-        return addRef(instance);
-    }
-
     public static uint Release(nint instance)
     {
         if (instance == 0)
@@ -85,58 +74,10 @@ internal static unsafe partial class ITunesNative
         return fn(instance);
     }
 
-    public static int PlayPause(nint instance)
-    {
-        var fn = (delegate* unmanaged[Stdcall]<nint, int>)GetMethod(instance, 13);
-        return fn(instance);
-    }
-
-    public static int PreviousTrack(nint instance)
-    {
-        var fn = (delegate* unmanaged[Stdcall]<nint, int>)GetMethod(instance, 14);
-        return fn(instance);
-    }
-
-    public static int Resume(nint instance)
-    {
-        var fn = (delegate* unmanaged[Stdcall]<nint, int>)GetMethod(instance, 15);
-        return fn(instance);
-    }
-
     public static int Stop(nint instance)
     {
         var fn = (delegate* unmanaged[Stdcall]<nint, int>)GetMethod(instance, 17);
         return fn(instance);
-    }
-
-    public static int GetSoundVolume(nint instance, out int volume)
-    {
-        fixed (int* pVolume = &volume)
-        {
-            var fn = (delegate* unmanaged[Stdcall]<nint, int*, int>)GetMethod(instance, 35);
-            return fn(instance, pVolume);
-        }
-    }
-
-    public static int SetSoundVolume(nint instance, int volume)
-    {
-        var fn = (delegate* unmanaged[Stdcall]<nint, int, int>)GetMethod(instance, 36);
-        return fn(instance, volume);
-    }
-
-    public static int GetMute(nint instance, out bool mute)
-    {
-        short isMute = 0;
-        var fn = (delegate* unmanaged[Stdcall]<nint, short*, int>)GetMethod(instance, 37);
-        var hr = fn(instance, &isMute);
-        mute = isMute != 0;
-        return hr;
-    }
-
-    public static int SetMute(nint instance, bool mute)
-    {
-        var fn = (delegate* unmanaged[Stdcall]<nint, short, int>)GetMethod(instance, 38);
-        return fn(instance, (short)(mute ? -1 : 0));
     }
 
     public static int GetPlayerState(nint instance, out ITPlayerState state)
@@ -155,12 +96,6 @@ internal static unsafe partial class ITunesNative
             var fn = (delegate* unmanaged[Stdcall]<nint, int*, int>)GetMethod(instance, 40);
             return fn(instance, pPos);
         }
-    }
-
-    public static int SetPlayerPosition(nint instance, int position)
-    {
-        var fn = (delegate* unmanaged[Stdcall]<nint, int, int>)GetMethod(instance, 41);
-        return fn(instance, position);
     }
 
     public static int GetCurrentTrack(nint instance, out nint pTrack)
@@ -297,15 +232,6 @@ internal static unsafe partial class ITunesNative
     }
 
     // --- IITArtworkCollection Methods ---
-
-    public static int GetArtworkCount(nint instance, out int count)
-    {
-        fixed (int* pCount = &count)
-        {
-            var fn = (delegate* unmanaged[Stdcall]<nint, int*, int>)GetMethod(instance, 7);
-            return fn(instance, pCount);
-        }
-    }
 
     public static int GetArtworkItem(nint instance, int index, out nint pArtwork)
     {

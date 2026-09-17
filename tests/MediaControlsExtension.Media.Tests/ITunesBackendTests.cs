@@ -115,7 +115,7 @@ public sealed class ITunesBackendTests
     }
 
     [TestMethod]
-    public async Task StartAsyncHonorsCancellationTokenBeforeExecution()
+    public async Task CanceledStartDoesNotConsumeBackend()
     {
         await using var backend = CreateDisconnectedBackend();
         using var cts = new CancellationTokenSource();
@@ -123,6 +123,8 @@ public sealed class ITunesBackendTests
 
         await Assert.ThrowsExactlyAsync<OperationCanceledException>(
             async () => await backend.StartAsync(cts.Token));
+
+        await backend.StartAsync(default);
     }
 
     [TestMethod]
