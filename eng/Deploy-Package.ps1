@@ -134,15 +134,39 @@ function Invoke-CheckedCommand {
 }
 
 function Find-VisualStudioInstallation {
+    $minMsbuildVersion = [version]'17.14.0'
+
     if ($VisualStudioPath) {
         $msbuildCandidate = Join-Path $VisualStudioPath 'MSBuild\Current\Bin\MSBuild.exe'
         $desktopBridgeCandidate = Join-Path $VisualStudioPath 'MSBuild\Microsoft\DesktopBridge\Microsoft.DesktopBridge.targets'
-        if ((Test-Path -LiteralPath $msbuildCandidate -PathType Leaf) -and
-            (Test-Path -LiteralPath $desktopBridgeCandidate -PathType Leaf)) {
+
+        $hasMsbuild = Test-Path -LiteralPath $msbuildCandidate -PathType Leaf
+        $hasDesktopBridge = Test-Path -LiteralPath $desktopBridgeCandidate -PathType Leaf
+        $msbuildVersion = if ($hasMsbuild) {
+            $vi = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($msbuildCandidate)
+            [version]"$($vi.FileMajorPart).$($vi.FileMinorPart).$($vi.FileBuildPart)"
+        }
+        else {
+            $null
+        }
+
+        if ($hasMsbuild -and ($msbuildVersion -ge $minMsbuildVersion) -and $hasDesktopBridge) {
             return $VisualStudioPath
         }
 
-        throw "Visual Studio with DesktopBridge packaging support was not found at '$VisualStudioPath'."
+        $issues = @()
+        if (-not $hasMsbuild) {
+            $issues += "MSBuild.exe was not found at '$msbuildCandidate'"
+        }
+        elseif ($msbuildVersion -lt $minMsbuildVersion) {
+            $issues += "MSBuild version $msbuildVersion is older than the required $minMsbuildVersion for .NET 10 SDK"
+        }
+
+        if (-not $hasDesktopBridge) {
+            $issues += "DesktopBridge tooling was not found at '$desktopBridgeCandidate'"
+        }
+
+        throw "Visual Studio installation at '$VisualStudioPath' does not meet packaging prerequisites: $($issues -join '; ')."
     }
 
     $vswherePath = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
@@ -151,22 +175,60 @@ function Find-VisualStudioInstallation {
     }
 
     $installationPaths = @(
-        & $vswherePath -latest -products * -prerelease -requires Microsoft.Component.MSBuild -property installationPath
+        & $vswherePath -products * -prerelease -requires Microsoft.Component.MSBuild -property installationPath
     )
     if ($LASTEXITCODE -ne 0) {
         throw "vswhere.exe failed with exit code $LASTEXITCODE."
     }
 
+    $inspected = @()
     foreach ($installationPath in $installationPaths) {
         $msbuildPath = Join-Path $installationPath 'MSBuild\Current\Bin\MSBuild.exe'
         $desktopBridgeTargets = Join-Path $installationPath 'MSBuild\Microsoft\DesktopBridge\Microsoft.DesktopBridge.targets'
-        if ((Test-Path -LiteralPath $msbuildPath -PathType Leaf) -and
-            (Test-Path -LiteralPath $desktopBridgeTargets -PathType Leaf)) {
+
+        $hasMsbuild = Test-Path -LiteralPath $msbuildPath -PathType Leaf
+        $hasDesktopBridge = Test-Path -LiteralPath $desktopBridgeTargets -PathType Leaf
+        $msbuildVersion = if ($hasMsbuild) {
+            $vi = [System.Diagnostics.FileVersionInfo]::GetVersionInfo($msbuildPath)
+            [version]"$($vi.FileMajorPart).$($vi.FileMinorPart).$($vi.FileBuildPart)"
+        }
+        else {
+            $null
+        }
+
+        if ($hasMsbuild -and ($msbuildVersion -ge $minMsbuildVersion) -and $hasDesktopBridge) {
             return $installationPath
         }
+
+        $statusParts = @()
+        if (-not $hasMsbuild) {
+            $statusParts += 'MSBuild missing'
+        }
+        elseif ($msbuildVersion -lt $minMsbuildVersion) {
+            $statusParts += "MSBuild $msbuildVersion (< $minMsbuildVersion)"
+        }
+        else {
+            $statusParts += "MSBuild $msbuildVersion"
+        }
+
+        if ($hasDesktopBridge) {
+            $statusParts += 'DesktopBridge present'
+        }
+        else {
+            $statusParts += 'DesktopBridge missing'
+        }
+
+        $inspected += "  - '$installationPath': $($statusParts -join ', ')"
     }
 
-    throw 'No Visual Studio installation with DesktopBridge packaging support was found.'
+    $summary = if ($inspected.Count -gt 0) {
+        "`nInspected installations:`n" + ($inspected -join "`n")
+    }
+    else {
+        "`nNo Visual Studio installations with MSBuild were found by vswhere."
+    }
+
+    throw "No single Visual Studio installation with both MSBuild 17.14+ (required for .NET 10 SDK) and DesktopBridge packaging support was found.$summary"
 }
 
 function Find-MakeAppx {
