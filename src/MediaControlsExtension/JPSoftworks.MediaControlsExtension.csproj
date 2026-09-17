@@ -53,6 +53,7 @@
 		<ProjectReference Include="..\MediaControlsExtension.MediaHost\JPSoftworks.MediaControlsExtension.MediaHost.csproj" ReferenceOutputAssembly="false" />
 		<ProjectReference Include="..\MediaControlsExtension.Media.Gsmtc\JPSoftworks.MediaControlsExtension.Media.Gsmtc.csproj" />
 		<ProjectReference Include="..\MediaControlsExtension.Media.Vlc\JPSoftworks.MediaControlsExtension.Media.Vlc.csproj" />
+		<ProjectReference Include="..\MediaControlsExtension.Media.ITunes\JPSoftworks.MediaControlsExtension.Media.ITunes.csproj" />
 	</ItemGroup>
 
 	<PropertyGroup>
@@ -67,7 +68,7 @@
 		<CsWinRTAotWarningLevel>2</CsWinRTAotWarningLevel>
 		<TrimmerSingleWarn>false</TrimmerSingleWarn>
 		<!-- Keep the CsWinRT Windows.Foundation fallback warning visible without failing AOT. -->
-		<WarningsNotAsErrors>$(WarningsNotAsErrors);IL2081</WarningsNotAsErrors>
+		<WarningsNotAsErrors>$(WarningsNotAsErrors);IL2081;CA1873</WarningsNotAsErrors>
 
 		<PublishTrimmed Condition="'$(PublishTrimmed)' == ''">$(PublishAot)</PublishTrimmed>
 		<TrimMode>full</TrimMode>

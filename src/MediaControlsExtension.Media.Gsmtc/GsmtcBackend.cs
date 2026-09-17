@@ -597,11 +597,16 @@ public sealed class GsmtcBackend : IMediaSourcePolicyBackend
         }
         catch (TimeoutException)
         {
-            GsmtcLog.BackendCleanupTimedOut(
-                logger,
-                timeout,
-                cleanupTasks.Count(static task => !task.IsCompleted),
-                cleanupTasks.Count);
+            if (logger.IsEnabled(LogLevel.Warning))
+            {
+                var pendingCount = cleanupTasks.Count(static task => !task.IsCompleted);
+                GsmtcLog.BackendCleanupTimedOut(
+                    logger,
+                    timeout,
+                    pendingCount,
+                    cleanupTasks.Count);
+            }
+
             _ = ObserveCleanupCompletionAsync(cleanupTask);
             throw;
         }

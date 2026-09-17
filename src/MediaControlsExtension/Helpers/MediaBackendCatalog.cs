@@ -8,6 +8,7 @@ using System.Collections.Immutable;
 using JPSoftworks.MediaControlsExtension.Media.Gsmtc;
 using JPSoftworks.MediaControlsExtension.Media.Hosting;
 using JPSoftworks.MediaControlsExtension.Media.Infrastructure;
+using JPSoftworks.MediaControlsExtension.Media.ITunes;
 using JPSoftworks.MediaControlsExtension.Media.Vlc;
 
 namespace JPSoftworks.MediaControlsExtension.Helpers;
@@ -87,8 +88,24 @@ internal static class MediaBackendCatalog
         {
             ReplacesSources = VlcSourceClaims(getVlcOptions()),
         });
+
+        mediaBackendRegistry.Register(new(
+            "itunes",
+            Strings.ResourceManager.GetString("Settings_Backend_ITunes_Title", Strings.Culture)!,
+            Strings.ResourceManager.GetString("Settings_Backend_ITunes_Description", Strings.Culture)!,
+            loggerFactory => new ITunesBackend(loggerFactory.CreateLogger<ITunesBackend>()),
+            EnabledByDefault: true)
+        {
+            ReplacesSources =
+            [
+                new("gsmtc", "Apple.iTunes"),
+                new("gsmtc.worker", "Apple.iTunes"),
+                new("gsmtc", "iTunes.exe"),
+                new("gsmtc.worker", "iTunes.exe"),
+            ],
+        });
 #if DEBUG || FF_ENABLE_DUMMY_BACKEND
-    mediaBackendRegistry..Register(new(
+    mediaBackendRegistry.Register(new(
         "dummy.worker",
         Strings.ResourceManager.GetString("Settings_Backend_Dummy_Title", Strings.Culture)!,
         Strings.ResourceManager.GetString("Settings_Backend_Dummy_Description", Strings.Culture)!,

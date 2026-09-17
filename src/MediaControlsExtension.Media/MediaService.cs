@@ -426,12 +426,16 @@ public sealed class MediaService : IMediaService
 
         if (!succeeded)
         {
-            MediaLog.CommandFailed(
-                this._logger,
-                work.OperationId.Value,
-                command.ResolvedOperation,
-                command.SessionId.Value,
-                result.DiagnosticMessage ?? outcomeStatus.ToString());
+            if (this._logger.IsEnabled(LogLevel.Warning))
+            {
+                var failureReason = result.DiagnosticMessage ?? outcomeStatus.ToString();
+                MediaLog.CommandFailed(
+                    this._logger,
+                    work.OperationId.Value,
+                    command.ResolvedOperation,
+                    command.SessionId.Value,
+                    failureReason);
+            }
         }
         else
         {
